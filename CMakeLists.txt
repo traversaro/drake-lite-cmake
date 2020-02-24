@@ -164,13 +164,29 @@ if(NOT drake_POPULATED)
           ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"
           RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+  
+  # Workaround for https://github.com/flexible-collision-library/fcl/issues/449
+  find_package(ccd QUIET CONFIG)
+  if(TARGET ccd)
+    set(CCD_DEPENDENCY ccd)
+  else()
+    set(CCD_DEPENDENCY)
+  endif()
+  find_package(octomap QUIET CONFIG)
+  if(TARGET octomap)
+    set(OCTOMAP_DEPENDENCY octomap)
+  else()
+    set(OCTOMAP_DEPENDENCY)
+  endif()
+  
+  
   # Install CMake package
   include(InstallBasicPackageFiles)
   install_basic_package_files(${PROJECT_NAME}
                               VERSION ${${PROJECT_NAME}_VERSION}
                               COMPATIBILITY AnyNewerVersion
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO
-                              DEPENDENCIES Eigen3 fmt fcl)
+                              DEPENDENCIES ${CCD_DEPENDENCY} ${OCTOMAP_DEPENDENCY} Eigen3 fmt fcl)
 
   # Add uninstall target
   include(AddUninstallTarget)
