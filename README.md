@@ -39,39 +39,65 @@ drake-lite-cmake depends on
  - [fmt](https://fmt.dev) - `version >= 4.0.0`
 
 
-# Build and link the library
-Use the following commands to build, install and link the library, assuming that the required dependencies can be found by CMake.
+# Build and use the library
+Use the following commands to build, install and use the library, assuming that the required dependencies can be found by CMake.
 
-### Build
-With `make` facilities:
+## Linux/macOS 
+First of all, install all the required dependencies, and make sure that can be found by CMake. 
+For the dependencies installed by apt/homebrew this tipically happens automatically, while for manually installed 
+depedencies you need to add the installation prefix to the [`CMAKE_PREFIX_PATH` enviroment variable](https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html).
+
+Then you can compile and install `drake-lite-cmake` as:  
 ```bash
 $ git clone https://github.com/traversaro/drake-lite-cmake
 $ cd drake-lite-cmake
 $ mkdir build && cd build
-$ cmake ..
+$ cmake -DCMAKE_INSTALL_PREFIX=<prefix> ..
 $ make
-$ [sudo] make install
-```
-
-With IDE build tool facilities:
-```bash
-$ git clone https://github.com/traversaro/drake-lite-cmake
-$ cd drake-lite-cmake
-$ mkdir build && cd build
-$ cmake ..
-$ cmake --build . --target ALL_BUILD --config Release
-$ cmake --build . --target INSTALL --config Release
+$ make install
 ```
 
 See [CGold guide](https://cgold.readthedocs.io/en/latest/first-step.html) if you need more details on how to build a CMake project.
 
-### Link
-Once the library is installed, you can link it using `CMake` with as little effort as writing the following line of code in your project `CMakeLists.txt`:
+
+## Windows/Visual Studio
+To compile `drake-lite-cmake` on Windows, it is necessary to use the Clang/LLVM support in Visual Studio,
+that needs to be installed as described in Visual Studio official documentation: https://docs.microsoft.com/en-us/cpp/build/clang-support-cmake .
+Furthermore, you need to explicitly select it by explicilty specifying as [`CMAKE_GENERATOR_TOOLSET`](https://cmake.org/cmake/help/v3.12/variable/CMAKE_GENERATOR_TOOLSET.html) `ClangCl` , either
+using the `-T` CMake command line option or specifying the toolset in the CMake GUI.
+
+Furthermore, at least Visual Studio 16.5 is required. 
+
+### Dependencies
+First of all, install all the required dependencies, and make sure that can be found by CMake. 
+For the dependencies installed by [vcpkg](https://github.com/microsoft/vcpkg) this tipically happens by passing vcpkg's `CMAKE_TOOLCHAIN_FILE`, 
+while for manually installed depedencies you need to add the installation prefix to the [`CMAKE_PREFIX_PATH` enviroment variable](https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html).
+
+### Compilation
+To compile the project from the command line, follow this instructions:
+```bash
+$ git clone https://github.com/traversaro/drake-lite-cmake
+$ cd drake-lite-cmake
+$ mkdir build && cd build
+$ cmake -T "ClangCl" -DCMAKE_INSTALL_PREFIX=<prefix> ..
+$ cmake --build . --target ALL_BUILD --config Release
+$ cmake --build . --target INSTALL --config Release
+```
+
+Otherwise, see  [CGold guide](https://cgold.readthedocs.io/en/latest/first-step.html) if you need more details on how to build a CMake project.
+
+Note that at the moment the drake headers themself only support be compiled by using the `ClangCl` toolset, so you need to compile any
+project that uses drake headers using the `ClangCl` toolset. However, if you have a project that uses drake but that do not expose the drake headers in its
+public includes, you can compile it with `ClangCl` and then the library can be used in Visual Studio project that uses other toolsets. 
+
+
+## Usage
+Once the library is installed, you can use it using `CMake` with as little effort as writing the following line of code in your project `CMakeLists.txt`:
 ```cmake
 ...
 find_package(drake-lite-cmake REQUIRED)
 ...
-target_link_libraries(<target> drake-lite-cmake::drake-lite-cmake)
+target_link_libraries(<target> PRIVATE drake-lite-cmake::drake-lite-cmake)
 ...
 ```
 
@@ -83,6 +109,6 @@ $ ctest [-VV]
 to run all the tests.
 
 
-# API documentaion
+# API documentation
 For API documentation, the users should refer to the official Drake documentation available at https://drake.mit.edu/, at least for the headers and the versions that are distributed with `drake-lite-cmake`.
 

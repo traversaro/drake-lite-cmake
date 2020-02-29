@@ -5,10 +5,10 @@ on:
   pull_request:
   schedule:
   # * is a special character in YAML so you have to quote this string
-  # Execute a "nightly" build at 2 AM UTC 
+  # Execute a "nightly" build at 2 AM UTC
   - cron:  '0 2 * * *'
-  
-  
+
+
 jobs:
   build:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}]'
@@ -16,41 +16,46 @@ jobs:
     strategy:
       matrix:
         build_type: [Release, Debug]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        exclude:
+        # excludes windows-latest Debug build
+        # workaround for https://github.com/traversaro/drake-lite-cmake/issues/7
+        - os: windows-latest
+          build_type: Debug
 
     steps:
     - uses: actions/checkout@master
-        
+
     # Print environment variables to simplify development and debugging
     - name: Environment Variables
       shell: bash
       run: env
-    
-    # Remove apt repos that are known to break from time to time 
-    # See https://github.com/actions/virtual-environments/issues/323  
+
+    # Remove apt repos that are known to break from time to time
+    # See https://github.com/actions/virtual-environments/issues/323
     - name: Remove broken apt repos [Ubuntu]
       if: matrix.os == 'ubuntu-latest'
       run: |
         for apt_file in `grep -lr microsoft /etc/apt/sources.list.d/`; do sudo rm $apt_file; done
-        
+
     # ============
     # DEPENDENCIES
     # ============
-    
+
     - name: Dependencies [Windows]
       if: matrix.os == 'windows-latest'
       run: |
         vcpkg.exe --triplet x64-windows install fmt eigen3
         # Dependencies to compile fcl from sources
         vcpkg.exe --triplet x64-windows install ccd octomap
-        
+
     - name: Dependencies [macOS]
       if: matrix.os == 'macOS-latest'
       run: |
         brew install fmt eigen
         # Dependencies to compile fcl from sources
         brew install libccd octomap
-    
+
     - name: Dependencies [Ubuntu]
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -58,9 +63,9 @@ jobs:
         sudo apt-get install git build-essential cmake libfmt-dev libeigen3-dev
         # Dependencies to compile fcl from sources
         sudo apt-get install libccd-dev liboctomap-dev
-        
-        
-    - name: Source-based Dependencies [Windows] 
+
+
+    - name: Source-based Dependencies [Windows]
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
@@ -70,9 +75,9 @@ jobs:
         mkdir -p build
         cd build
         cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL 
-        
-    - name: Source-based Dependencies [Ubuntu/macOS] 
+        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+
+    - name: Source-based Dependencies [Ubuntu/macOS]
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       shell: bash
       run: |
@@ -82,12 +87,12 @@ jobs:
         mkdir -p build
         cd build
         cmake -DBUILD_TESTING:BOOL=OFF -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target install 
- 
+        cmake --build . --config ${{ matrix.build_type }} --target install
+
     # ===================
     # CMAKE-BASED PROJECT
     # ===================
-    
+
     - name: Configure [Windows]
       # Use bash also on Windows (otherwise cd, mkdir, ... do not work)
       if: matrix.os == 'windows-latest'
@@ -95,7 +100,7 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake -A x64 -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TESTING:BOOL=ON -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install \
+        cmake -A x64 -T ClangCl -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TESTING:BOOL=ON -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install \
                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
 
     - name: Configure [Ubuntu/macOS]
@@ -105,33 +110,33 @@ jobs:
         mkdir -p build
         cd build
         cmake -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DBUILD_TESTING:BOOL=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        
+
     - name: Build
       shell: bash
       run: |
         cd build
         cmake --build . --config ${{ matrix.build_type }}
-        
+
     - name: Test
       shell: bash
       run: |
         cd build
-        ctest --output-on-failure -C ${{ matrix.build_type }} . 
-        
+        ctest --output-on-failure -C ${{ matrix.build_type }} .
+
     - name: Install [Windows]
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
         cd build
         cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        
+
     - name: Install [Ubuntu/macOS]
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       shell: bash
       run: |
         cd build
         cmake --build . --config ${{ matrix.build_type }} --target install
-        
+
     - name: Compile Examples [Windows]
       if: matrix.os == 'windows-latest'
       shell: bash
@@ -139,10 +144,10 @@ jobs:
         cd examples
         mkdir -p build
         cd build
-        cmake -A x64 -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
-               -Ddrake_SOURCE_DIR=${GITHUB_WORKSPACE}/build/drake -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install .. 
+        cmake -A x64 -T ClangCl -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
+               -Ddrake_SOURCE_DIR=${GITHUB_WORKSPACE}/build/drake -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install ..
         cmake --build . --config ${{ matrix.build_type }}
-        
+
     - name: Compile Examples [Ubuntu/macOS]
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       shell: bash
@@ -150,5 +155,5 @@ jobs:
         cd examples
         mkdir -p build
         cd build
-        cmake -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -Ddrake_SOURCE_DIR=${GITHUB_WORKSPACE}/build/drake .. 
+        cmake -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -Ddrake_SOURCE_DIR=${GITHUB_WORKSPACE}/build/drake ..
         cmake --build . --config ${{ matrix.build_type }}

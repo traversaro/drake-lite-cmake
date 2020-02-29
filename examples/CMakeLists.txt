@@ -25,6 +25,8 @@ else()
   set(USED_DRAKE_LIBRARY drake::drake)
 endif()
 
+# Avoid path names problems on Windows
+file(TO_CMAKE_PATH ${drake_SOURCE_DIR} drake_SOURCE_DIR_CLEAN)
 
-add_executable(simple_continuous_time_system ${drake_SOURCE_DIR}/examples/simple_continuous_time_system.cc)
+add_executable(simple_continuous_time_system ${drake_SOURCE_DIR_CLEAN}/examples/simple_continuous_time_system.cc)
 target_link_libraries(simple_continuous_time_system PUBLIC ${USED_DRAKE_LIBRARY})
