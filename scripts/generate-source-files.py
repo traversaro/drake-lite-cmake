@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # A script to generate to extract the C++ source code corresponding to a set of bazel C++ targets.
 # Loosely based on https://github.com/lizan/bazel-cmakelists
@@ -53,8 +53,8 @@ def run_bazel(args):
     args = sa.split() + args
 
   args = ['bazel'] + args
-  print args
-  return subprocess.check_output(args)
+  print(args)
+  return subprocess.check_output(args).decode('utf-8')
 
 def ExtractSources():
   query = 'kind("source file", deps(kind("cc_.* rule", deps(kind("cc_.* rule", %s)))))' % QueryTargets()
@@ -129,7 +129,7 @@ def ExtractCopts():
   return set(copts)
 
 def GenerateSourceFilesCMake():
-  if not FLAGS.skip_build:
+  if FLAGS.build:
     bazel_args = ['build']
     bazel_args.extend(FLAGS.targets)
     bazel_args.extend(FLAGS.bazel_args[1:])
@@ -160,14 +160,11 @@ def GenerateSourceFilesCMake():
     cmakelist.write("\n    ".join(sources))
     cmakelist.write(")\n\n")
 
-  sys.stderr.write("source_files.cmake generated in following directory:\n")
-  sys.stderr.write(file_root + "\n")
-
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description="Generate CMakeLists.txt for IDEs from bazel targets")
+  parser = argparse.ArgumentParser(description="Generate source_files.cmake that contains the source files of the specified targets.")
   parser.add_argument('--project')
   parser.add_argument('--targets', default=['//...'], nargs='+')
-  parser.add_argument('--skip_build', action='store_true', help="Skip build step if you have aleady built target(s)")
+  parser.add_argument('--build', action='store_true', help="Optionally runs the build of the given targetss")
   parser.add_argument('--external', action='store_true', help='Generate project with external')
   parser.add_argument('--output', default="source_files.cmake")
   parser.add_argument('bazel_args', nargs=argparse.REMAINDER)
