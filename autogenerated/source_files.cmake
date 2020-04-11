@@ -97,18 +97,16 @@ set(SOURCE_FILES
     systems/framework/basic_vector.cc
     systems/framework/abstract_values.h
     systems/framework/abstract_values.cc
-    systems/analysis/stepwise_dense_output.h
     systems/analysis/simulator_status.h
     systems/analysis/simulator_status.cc
     systems/analysis/simulator.h
     systems/analysis/simulator.cc
     systems/analysis/runge_kutta3_integrator.h
     systems/analysis/runge_kutta3_integrator.cc
-    systems/analysis/runge_kutta3_integrator-inl.h
     systems/analysis/runge_kutta2_integrator.h
+    systems/analysis/runge_kutta2_integrator.cc
     systems/analysis/integrator_base.h
-    systems/analysis/hermitian_dense_output.h
-    systems/analysis/dense_output.h
+    systems/analysis/integrator_base.cc
     multibody/triangle_quadrature/triangle_quadrature_rule.h
     multibody/triangle_quadrature/triangle_quadrature.h
     multibody/triangle_quadrature/triangle_quadrature.cc
@@ -149,7 +147,6 @@ set(SOURCE_FILES
     multibody/tree/multibody_tree_system.h
     multibody/tree/multibody_tree_system.cc
     multibody/tree/multibody_tree_indexes.h
-    multibody/tree/multibody_tree_element.h
     multibody/tree/multibody_tree.h
     multibody/tree/multibody_tree.cc
     multibody/tree/multibody_tree-inl.h
@@ -163,6 +160,8 @@ set(SOURCE_FILES
     multibody/tree/mobilizer.h
     multibody/tree/linear_spring_damper.h
     multibody/tree/linear_spring_damper.cc
+    multibody/tree/linear_bushing_roll_pitch_yaw.h
+    multibody/tree/linear_bushing_roll_pitch_yaw.cc
     multibody/tree/joint_actuator.h
     multibody/tree/joint_actuator.cc
     multibody/tree/joint.h
@@ -171,6 +170,8 @@ set(SOURCE_FILES
     multibody/tree/force_element.h
     multibody/tree/fixed_offset_frame.h
     multibody/tree/fixed_offset_frame.cc
+    multibody/tree/door_hinge.h
+    multibody/tree/door_hinge.cc
     multibody/tree/body_node_welded.h
     multibody/tree/body_node_impl.h
     multibody/tree/body_node_impl.cc
@@ -181,8 +182,8 @@ set(SOURCE_FILES
     multibody/tree/articulated_body_inertia_cache.cc
     multibody/tree/articulated_body_inertia.h
     multibody/tree/articulated_body_inertia.cc
-    multibody/tree/articulated_body_force_bias_cache.h
-    multibody/tree/articulated_body_force_bias_cache.cc
+    multibody/tree/articulated_body_force_cache.h
+    multibody/tree/articulated_body_force_cache.cc
     multibody/tree/acceleration_kinematics_cache.h
     multibody/tree/acceleration_kinematics_cache.cc
     multibody/topology/multibody_graph.h
@@ -208,6 +209,8 @@ set(SOURCE_FILES
     multibody/plant/contact_results.cc
     multibody/plant/contact_jacobians.h
     multibody/plant/contact_jacobians.cc
+    multibody/plant/calc_distance_and_time_derivative.h
+    multibody/plant/calc_distance_and_time_derivative.cc
     multibody/math/spatial_velocity.h
     multibody/math/spatial_velocity.cc
     multibody/math/spatial_vector.h
@@ -242,6 +245,7 @@ set(SOURCE_FILES
     math/normalize_vector.cc
     math/matrix_util.h
     math/matrix_util.cc
+    math/knot_vector_type.h
     math/jacobian.h
     math/jacobian.cc
     math/hopf_coordinate.h
@@ -269,6 +273,8 @@ set(SOURCE_FILES
     math/continuous_algebraic_riccati_equation.h
     math/continuous_algebraic_riccati_equation.cc
     math/compute_numerical_gradient.h
+    math/bspline_basis.h
+    math/bspline_basis.cc
     math/barycentric.h
     math/barycentric.cc
     math/autodiff_gradient.h
@@ -289,7 +295,6 @@ set(SOURCE_FILES
     geometry/proximity/volume_to_surface_mesh.h
     geometry/proximity/volume_to_surface_mesh.cc
     geometry/proximity/volume_mesh_field.h
-    geometry/proximity/volume_mesh_field.cc
     geometry/proximity/volume_mesh.h
     geometry/proximity/volume_mesh.cc
     geometry/proximity/surface_mesh.h
@@ -298,15 +303,20 @@ set(SOURCE_FILES
     geometry/proximity/sorted_triplet.cc
     geometry/proximity/proximity_utilities.h
     geometry/proximity/proximity_utilities.cc
+    geometry/proximity/posed_half_space.h
+    geometry/proximity/plane.h
     geometry/proximity/penetration_as_point_pair_callback.h
     geometry/proximity/penetration_as_point_pair_callback.cc
     geometry/proximity/obj_to_surface_mesh.h
     geometry/proximity/obj_to_surface_mesh.cc
     geometry/proximity/mesh_to_vtk.h
     geometry/proximity/mesh_to_vtk.cc
+    geometry/proximity/mesh_plane_intersection.h
+    geometry/proximity/mesh_plane_intersection.cc
     geometry/proximity/mesh_intersection.h
     geometry/proximity/mesh_intersection.cc
     geometry/proximity/mesh_half_space_intersection.h
+    geometry/proximity/mesh_half_space_intersection.cc
     geometry/proximity/mesh_field_linear.h
     geometry/proximity/mesh_field_linear.cc
     geometry/proximity/mesh_field.h
@@ -318,6 +328,7 @@ set(SOURCE_FILES
     geometry/proximity/make_cylinder_mesh.h
     geometry/proximity/make_cylinder_field.h
     geometry/proximity/make_box_mesh.h
+    geometry/proximity/make_box_mesh.cc
     geometry/proximity/make_box_field.h
     geometry/proximity/hydroelastic_internal.h
     geometry/proximity/hydroelastic_internal.cc
@@ -328,6 +339,8 @@ set(SOURCE_FILES
     geometry/proximity/distance_to_point_with_gradient.h
     geometry/proximity/distance_to_point_with_gradient.cc
     geometry/proximity/distance_to_point_callback.h
+    geometry/proximity/contact_surface_utility.h
+    geometry/proximity/contact_surface_utility.cc
     geometry/proximity/collisions_exist_callback.h
     geometry/proximity/collisions_exist_callback.cc
     geometry/proximity/collision_filter_legacy.h
@@ -449,7 +462,6 @@ set(SOURCE_FILES
     common/eigen_types.h
     common/eigen_stl_types.h
     common/eigen_autodiff_types.h
-    common/eigen_autodiff_limits.h
     common/dummy_value.h
     common/drake_throw.h
     common/drake_path.h
