@@ -4,10 +4,66 @@ set(SOURCE_FILES
     systems/sensors/image.h
     systems/sensors/image.cc
     systems/sensors/color_palette.h
+    systems/sensors/camera_info.h
+    systems/sensors/camera_info.cc
     systems/rendering/pose_bundle.h
     systems/rendering/pose_bundle.cc
     systems/rendering/frame_velocity.h
     systems/rendering/frame_velocity.cc
+    systems/primitives/zero_order_hold.h
+    systems/primitives/zero_order_hold.cc
+    systems/primitives/wrap_to_system.h
+    systems/primitives/wrap_to_system.cc
+    systems/primitives/trajectory_source.h
+    systems/primitives/trajectory_source.cc
+    systems/primitives/trajectory_linear_system.h
+    systems/primitives/trajectory_linear_system.cc
+    systems/primitives/trajectory_affine_system.h
+    systems/primitives/trajectory_affine_system.cc
+    systems/primitives/symbolic_vector_system.h
+    systems/primitives/symbolic_vector_system.cc
+    systems/primitives/sine.h
+    systems/primitives/sine.cc
+    systems/primitives/signal_logger.h
+    systems/primitives/signal_logger.cc
+    systems/primitives/signal_log.h
+    systems/primitives/signal_log.cc
+    systems/primitives/saturation.h
+    systems/primitives/saturation.cc
+    systems/primitives/random_source.h
+    systems/primitives/random_source.cc
+    systems/primitives/port_switch.h
+    systems/primitives/port_switch.cc
+    systems/primitives/pass_through.h
+    systems/primitives/pass_through.cc
+    systems/primitives/multiplexer.h
+    systems/primitives/multiplexer.cc
+    systems/primitives/matrix_gain.h
+    systems/primitives/matrix_gain.cc
+    systems/primitives/linear_system.h
+    systems/primitives/linear_system.cc
+    systems/primitives/integrator.h
+    systems/primitives/integrator.cc
+    systems/primitives/gain.h
+    systems/primitives/gain.cc
+    systems/primitives/first_order_low_pass_filter.h
+    systems/primitives/first_order_low_pass_filter.cc
+    systems/primitives/discrete_time_delay.h
+    systems/primitives/discrete_time_delay.cc
+    systems/primitives/discrete_derivative.h
+    systems/primitives/discrete_derivative.cc
+    systems/primitives/demultiplexer.h
+    systems/primitives/demultiplexer.cc
+    systems/primitives/constant_vector_source.h
+    systems/primitives/constant_vector_source.cc
+    systems/primitives/constant_value_source.h
+    systems/primitives/constant_value_source.cc
+    systems/primitives/barycentric_system.h
+    systems/primitives/barycentric_system.cc
+    systems/primitives/affine_system.h
+    systems/primitives/affine_system.cc
+    systems/primitives/adder.h
+    systems/primitives/adder.cc
     systems/framework/witness_function.h
     systems/framework/witness_function.cc
     systems/framework/vector_system.h
@@ -97,6 +153,12 @@ set(SOURCE_FILES
     systems/framework/basic_vector.cc
     systems/framework/abstract_values.h
     systems/framework/abstract_values.cc
+    systems/estimators/luenberger_observer.h
+    systems/estimators/luenberger_observer.cc
+    systems/estimators/kalman_filter.h
+    systems/estimators/kalman_filter.cc
+    systems/controllers/linear_quadratic_regulator.h
+    systems/controllers/linear_quadratic_regulator.cc
     systems/analysis/simulator_status.h
     systems/analysis/simulator_status.cc
     systems/analysis/simulator.h
@@ -107,6 +169,12 @@ set(SOURCE_FILES
     systems/analysis/runge_kutta2_integrator.cc
     systems/analysis/integrator_base.h
     systems/analysis/integrator_base.cc
+    perception/point_cloud_flags.h
+    perception/point_cloud_flags.cc
+    perception/point_cloud.h
+    perception/point_cloud.cc
+    perception/depth_image_to_point_cloud.h
+    perception/depth_image_to_point_cloud.cc
     multibody/triangle_quadrature/triangle_quadrature_rule.h
     multibody/triangle_quadrature/triangle_quadrature.h
     multibody/triangle_quadrature/triangle_quadrature.cc
@@ -243,8 +311,12 @@ set(SOURCE_FILES
     multibody/math/spatial_algebra.h
     multibody/math/spatial_acceleration.h
     multibody/math/spatial_acceleration.cc
+    multibody/hydroelastics/level_set_field.h
+    multibody/hydroelastics/hydroelastic_field_sphere.h
+    multibody/hydroelastics/hydroelastic_field.h
     multibody/hydroelastics/hydroelastic_engine.h
     multibody/hydroelastics/hydroelastic_engine.cc
+    multibody/hydroelastics/contact_surface_from_level_set.h
     math/wrap_to.h
     math/saturate.h
     math/rotation_matrix.h
@@ -402,10 +474,14 @@ set(SOURCE_FILES
     common/trajectories/trajectory.h
     common/trajectories/piecewise_trajectory.h
     common/trajectories/piecewise_trajectory.cc
+    common/trajectories/piecewise_quaternion.h
+    common/trajectories/piecewise_quaternion.cc
     common/trajectories/piecewise_polynomial.h
     common/trajectories/piecewise_polynomial.cc
     common/trajectories/exponential_plus_piecewise_polynomial.h
     common/trajectories/exponential_plus_piecewise_polynomial.cc
+    common/trajectories/bspline_trajectory.h
+    common/trajectories/bspline_trajectory.cc
     common/value.h
     common/value.cc
     common/unused.h
