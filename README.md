@@ -34,10 +34,17 @@ the problem could be induced by the modifications done at the `drake-lite-cmake`
 
 # Dependencies
 drake-lite-cmake depends on
- - [Eigen3](http://eigen.tuxfamily.org) - `version >= 3.3.3`
+ - [fmt](https://fmt.dev) - `version >= 6.0.0`
+ - [spdlog](https://github.com/gabime/spdlog) - `version >= 1.3`
+ - [Eigen3](http://eigen.tuxfamily.org) - `version >= 3.3.4`
+ - [TinyXML2](https://github.com/leethomason/tinyxml2) - `version >= 6.0.0`
  - [Flexible Collision Library (fcl)](https://github.com/flexible-collision-library/fcl) - `version >= 0.6.0`
- - [fmt](https://fmt.dev) - `version >= 4.0.0`
+ - [SDFormat](http://sdformat.org/) - `version >= 9.0.0`
 
+Detailed documentation on how to install the dependencies on each platform is not available, but
+you can inspect under `.github/workflows/ci.yml` for the detailed instructions on how we install the dependencies in our testing infrastructure.
+Note that due to a bug of spdlog on Windows fixed by a recent PR (https://github.com/gabime/spdlog/pull/1453) on Windows the latest (unreleased) version
+of spdlog is actually required.
 
 # Build and use the library
 Use the following commands to build, install and use the library, assuming that the required dependencies can be found by CMake.

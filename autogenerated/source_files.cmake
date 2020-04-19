@@ -178,6 +178,8 @@ set(SOURCE_FILES
     multibody/tree/body_node.h
     multibody/tree/body.h
     multibody/tree/body.cc
+    multibody/tree/ball_rpy_joint.h
+    multibody/tree/ball_rpy_joint.cc
     multibody/tree/articulated_body_inertia_cache.h
     multibody/tree/articulated_body_inertia_cache.cc
     multibody/tree/articulated_body_inertia.h
@@ -211,6 +213,26 @@ set(SOURCE_FILES
     multibody/plant/contact_jacobians.cc
     multibody/plant/calc_distance_and_time_derivative.h
     multibody/plant/calc_distance_and_time_derivative.cc
+    multibody/parsing/parser.h
+    multibody/parsing/parser.cc
+    multibody/parsing/package_map.h
+    multibody/parsing/package_map.cc
+    multibody/parsing/detail_urdf_parser.h
+    multibody/parsing/detail_urdf_parser.cc
+    multibody/parsing/detail_urdf_geometry.h
+    multibody/parsing/detail_urdf_geometry.cc
+    multibody/parsing/detail_tinyxml.h
+    multibody/parsing/detail_tinyxml.cc
+    multibody/parsing/detail_sdf_parser.h
+    multibody/parsing/detail_sdf_parser.cc
+    multibody/parsing/detail_scene_graph.h
+    multibody/parsing/detail_scene_graph.cc
+    multibody/parsing/detail_path_utils.h
+    multibody/parsing/detail_path_utils.cc
+    multibody/parsing/detail_ignition.h
+    multibody/parsing/detail_ignition.cc
+    multibody/parsing/detail_common.h
+    multibody/parsing/detail_common.cc
     multibody/math/spatial_velocity.h
     multibody/math/spatial_velocity.cc
     multibody/math/spatial_vector.h

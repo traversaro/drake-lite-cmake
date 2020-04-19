@@ -136,17 +136,6 @@ def GenerateSourceFilesCMake():
     run_bazel(bazel_args)
 
   sources = ExtractSources()
-  generated = ExtractGenerated()
-  includes = ExtractIncludes()
-  defines = ExtractDefines()
-  copts = ExtractCopts()
-  for opt in copts:
-    if opt.startswith("-I-"):
-      includes.add(opt[3:])
-    elif opt.startswith("-I"):
-      includes.add(opt[2:])
-    elif opt.startswith("-D"):
-      defines.add(opt[2:])
 
   output = FLAGS.output
   file_root = run_bazel(['info', 'workspace']).strip()

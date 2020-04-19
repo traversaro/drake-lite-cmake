@@ -45,14 +45,16 @@ jobs:
     - name: Dependencies [Windows]
       if: matrix.os == 'windows-latest'
       run: |
-        vcpkg.exe --triplet x64-windows install fmt eigen3
+        vcpkg.exe --triplet x64-windows install fmt eigen3 tinyxml2
         # Dependencies to compile fcl from sources
         vcpkg.exe --triplet x64-windows install ccd octomap
+        # Dependencies to compile sdformat9 from sources
+        vcpkg.exe --triplet x64-windows install tinyxml urdfdom
 
     - name: Dependencies [macOS]
       if: matrix.os == 'macOS-latest'
       run: |
-        brew install fmt eigen
+        brew install fmt spdlog eigen tinyxml2 osrf/simulation/sdformat9
         # Dependencies to compile fcl from sources
         brew install libccd octomap
 
@@ -60,9 +62,14 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install git build-essential cmake libfmt-dev libeigen3-dev
+        sudo apt-get install git build-essential cmake libeigen3-dev libtinyxml2-dev
         # Dependencies to compile fcl from sources
         sudo apt-get install libccd-dev liboctomap-dev
+        # sdformat
+        sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-latest.list'
+        wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+        sudo apt-get update
+        sudo apt-get install libsdformat9-dev
 
 
     - name: Source-based Dependencies [Windows]
@@ -76,11 +83,66 @@ jobs:
         cd build
         cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
         cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+        cd ../..
+        # ignition-cmake2
+        git clone https://github.com/ignitionrobotics/ign-cmake
+        cd ign-cmake
+        git checkout ign-cmake2
+        mkdir -p build
+        cd build
+        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+        cd ../..
+        # ignition-math6
+        git clone https://github.com/ignitionrobotics/ign-math
+        cd ign-math
+        git checkout ign-math6
+        mkdir -p build
+        cd build
+        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+        cd ../..
+        # sdformat9
+        git clone https://github.com/osrf/sdformat
+        cd sdformat
+        git checkout sdf9
+        mkdir -p build
+        cd build
+        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+        cd ../..
+        # spdlog
+        git clone https://github.com/gabime/spdlog
+        cd spdlog
+        git checkout 81444265f4618f9e3eafba863b806ce07fab12aa
+        mkdir -p build
+        cd build
+        cmake -A x64 -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
+        cd ../..
 
     - name: Source-based Dependencies [Ubuntu/macOS]
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       shell: bash
       run: |
+        # fmt
+        git clone https://github.com/fmtlib/fmt
+        cd fmt
+        git checkout 6.1.2
+        mkdir -p build
+        cd build
+        cmake -DBUILD_SHARED_LIBS:BOOL=ON -DFMT_TEST:BOOL=OFF -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target install
+        cd ../..
+        # spdlog
+        git clone https://github.com/gabime/spdlog
+        cd spdlog
+        git checkout v1.5.0
+        mkdir -p build
+        cd build
+        cmake -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
+        cmake --build . --config ${{ matrix.build_type }} --target install
+        cd ../..
         # fcl
         git clone https://github.com/flexible-collision-library/fcl
         cd fcl
@@ -117,10 +179,20 @@ jobs:
         cd build
         cmake --build . --config ${{ matrix.build_type }}
 
-    - name: Test
+    - name: Test [Ubuntu/macOS] 
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       shell: bash
       run: |
         cd build
+        ctest --output-on-failure -C ${{ matrix.build_type }} .
+
+    - name: Test [Windows]
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        cd build
+        # We need to add to the path the location of manually installed binaries
+        export PATH=$PATH:${GITHUB_WORKSPACE}/install/bin
         ctest --output-on-failure -C ${{ matrix.build_type }} .
 
     - name: Install [Windows]

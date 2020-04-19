@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.12)
 # version of the used drake version, plus an additional version number
 # that indicates drake-lite-cmake revision, i.e. drake-lite-cmake x.y.z.w is the w-release
 # of drake-lite-cmake based on drake x.y.z
-set(DRAKE_UPSTREAM_TAG d5019f2f955d59146d10e188d7f802d43ebb7e98)
-set(DRAKE_UPSTREAM_VERSION 0.16.100)
+set(DRAKE_UPSTREAM_TAG b02ff6e7b75d1a9a3ae7d4cf21fe76fa558cff74)
+set(DRAKE_UPSTREAM_VERSION 0.16.101)
 set(DRAKE_LITE_CMAKE_REVISION 0)
 set(DRAKE_LITE_CMAKE_VERSION "${DRAKE_UPSTREAM_VERSION}.${DRAKE_LITE_CMAKE_REVISION}")
 if(NOT DEFINED DRAKE_UPSTREAM_TAG)
@@ -49,9 +49,15 @@ endif()
 
 include(FetchContent)
 
-find_package(Eigen3 REQUIRED)
-find_package(fmt REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+find_package(Eigen3 3.3.4 CONFIG REQUIRED)
+find_package(fmt 6.0 CONFIG REQUIRED)
+find_package(spdlog 1.3 CONFIG REQUIRED)
+
 find_package(fcl REQUIRED)
+find_package(tinyxml2 REQUIRED)
+find_package(sdformat9 REQUIRED)
 
 # Options
 option(BUILD_SHARED_LIBS "If on, build shared libraries, otherwise build static libraries." ON)
@@ -103,6 +109,21 @@ if(NOT ghcfilesystem_POPULATED)
   set(GHC_FILESYSTEM_WITH_INSTALL OFF CACHE BOOL "" FORCE)
   add_subdirectory(${ghcfilesystem_SOURCE_DIR} ${ghcfilesystem_BINARY_DIR})
 endif()
+
+# tinydir 
+FetchContent_Declare(
+  tinydir
+  GIT_REPOSITORY https://github.com/cxong/tinydir.git
+  GIT_TAG        1.2.4
+)
+FetchContent_GetProperties(tinydir)
+if(NOT tinydir_POPULATED)
+  FetchContent_Populate(tinydir)
+  add_library(tinydir::tinydir INTERFACE IMPORTED)
+  set_target_properties(tinydir::tinydir PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${tinydir_SOURCE_DIR}")
+endif()
+
 
 if(BUILD_TESTING)
   FetchContent_Declare(
@@ -165,26 +186,33 @@ if(NOT drake_POPULATED)
   list(REMOVE_ITEM SOURCE_FILES common/find_resource.cc)
   list(REMOVE_ITEM SOURCE_FILES common/find_loaded_library.h)
   list(REMOVE_ITEM SOURCE_FILES common/find_loaded_library.cc)
-  list(REMOVE_ITEM SOURCE_FILES common/drake_path.h)
-  list(REMOVE_ITEM SOURCE_FILES common/drake_path.cc)
+  
   # temp_directory is Unix-only for now
   list(REMOVE_ITEM SOURCE_FILES common/temp_directory.h)
   list(REMOVE_ITEM SOURCE_FILES common/temp_directory.cc)
+  
+  # for drake_path.cc, we remove it but we also add a dummy version later
+  list(REMOVE_ITEM SOURCE_FILES common/drake_path.hh)
+  list(REMOVE_ITEM SOURCE_FILES common/drake_path.cc)
 
   # Append path to the list of files
   set(ABS_SOURCE_FILES "")
   foreach(file IN LISTS SOURCE_FILES)
     list(APPEND ABS_SOURCE_FILES "${drake_CORRECTED_SOURCE_DIR}/${file}")
   endforeach()
+  
+  # Add dummy_drake_path.cc
+  list(APPEND ABS_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dummy_drake_path.cc")
 
   add_library(drake-lite-cmake ${ABS_SOURCE_FILES})
   add_library(drake-lite-cmake::drake-lite-cmake ALIAS drake-lite-cmake)
   target_include_directories(drake-lite-cmake PUBLIC "$<BUILD_INTERFACE:${drake_CORRECTED_PARENT_SOURCE_DIR}>"
                                                      "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
   target_link_libraries(drake-lite-cmake PUBLIC Eigen3::Eigen fmt::fmt fcl
-                                         PRIVATE ghc_filesystem tinyobjloader_double)
+                                         PRIVATE ghc_filesystem tinyobjloader_double tinydir::tinydir sdformat9::sdformat9 tinyxml2::tinyxml2 spdlog::spdlog)
   target_compile_features(drake-lite-cmake PUBLIC cxx_std_17)
   target_compile_definitions(drake-lite-cmake PRIVATE TINYOBJLOADER_USE_DOUBLE)
+  target_compile_definitions(drake-lite-cmake PRIVATE HAVE_SPDLOG)
 
   if(MSVC)
     # Support for M_PI and for std::aligned_storage<Len, Align> with extended alignement
@@ -195,9 +223,6 @@ if(NOT drake_POPULATED)
 
     # Enable /bigobj support
     target_compile_options(drake-lite-cmake PRIVATE /bigobj)
-
-    # Support for various workarounds
-    target_compile_options(drake-lite-cmake PRIVATE "$<BUILD_INTERFACE:/FI${CMAKE_CURRENT_SOURCE_DIR}/msvc_private_workarounds.h>")
   endif()
 
   # Install headers
@@ -243,7 +268,8 @@ if(NOT drake_POPULATED)
                               VERSION ${${PROJECT_NAME}_VERSION}
                               COMPATIBILITY AnyNewerVersion
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO
-                              DEPENDENCIES ${CCD_DEPENDENCY} ${OCTOMAP_DEPENDENCY} Eigen3 fmt fcl)
+                              DEPENDENCIES ${CCD_DEPENDENCY} ${OCTOMAP_DEPENDENCY} Eigen3 fmt fcl
+                              PRIVATE_DEPENDENCIES sdformat9 spdlog tinyxml2)
 
   # Add uninstall target
   include(AddUninstallTarget)
