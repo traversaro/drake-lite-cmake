@@ -185,6 +185,10 @@ set(SOURCE_FILES
     multibody/tree/weld_joint.cc
     multibody/tree/velocity_kinematics_cache.h
     multibody/tree/velocity_kinematics_cache.cc
+    multibody/tree/universal_mobilizer.h
+    multibody/tree/universal_mobilizer.cc
+    multibody/tree/universal_joint.h
+    multibody/tree/universal_joint.cc
     multibody/tree/unit_inertia.h
     multibody/tree/unit_inertia.cc
     multibody/tree/uniform_gravity_field_element.h
@@ -262,6 +266,8 @@ set(SOURCE_FILES
     multibody/plant/tamsi_solver_results.cc
     multibody/plant/tamsi_solver.h
     multibody/plant/tamsi_solver.cc
+    multibody/plant/propeller.h
+    multibody/plant/propeller.cc
     multibody/plant/point_pair_contact_info.h
     multibody/plant/point_pair_contact_info.cc
     multibody/plant/multibody_plant.h
@@ -391,6 +397,7 @@ set(SOURCE_FILES
     geometry/proximity/volume_mesh_field.h
     geometry/proximity/volume_mesh.h
     geometry/proximity/volume_mesh.cc
+    geometry/proximity/tessellation_strategy.h
     geometry/proximity/surface_mesh.h
     geometry/proximity/surface_mesh.cc
     geometry/proximity/sorted_triplet.h
@@ -472,6 +479,7 @@ set(SOURCE_FILES
     geometry/frame_kinematics_vector.h
     geometry/frame_kinematics_vector.cc
     common/trajectories/trajectory.h
+    common/trajectories/trajectory.cc
     common/trajectories/piecewise_trajectory.h
     common/trajectories/piecewise_trajectory.cc
     common/trajectories/piecewise_quaternion.h
@@ -480,6 +488,8 @@ set(SOURCE_FILES
     common/trajectories/piecewise_polynomial.cc
     common/trajectories/exponential_plus_piecewise_polynomial.h
     common/trajectories/exponential_plus_piecewise_polynomial.cc
+    common/trajectories/discrete_time_trajectory.h
+    common/trajectories/discrete_time_trajectory.cc
     common/trajectories/bspline_trajectory.h
     common/trajectories/bspline_trajectory.cc
     common/value.h
@@ -538,6 +548,8 @@ set(SOURCE_FILES
     common/polynomial.cc
     common/pointer_cast.h
     common/pointer_cast.cc
+    common/nice_type_name_override.h
+    common/nice_type_name_override.cc
     common/nice_type_name.h
     common/nice_type_name.cc
     common/never_destroyed.h
@@ -564,7 +576,6 @@ set(SOURCE_FILES
     common/drake_throw.h
     common/drake_path.h
     common/drake_path.cc
-    common/drake_nodiscard.h
     common/drake_marker.h
     common/drake_marker.cc
     common/drake_deprecated.h

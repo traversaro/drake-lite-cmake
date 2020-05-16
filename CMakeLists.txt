@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.12)
 # version of the used drake version, plus an additional version number
 # that indicates drake-lite-cmake revision, i.e. drake-lite-cmake x.y.z.w is the w-release
 # of drake-lite-cmake based on drake x.y.z
-set(DRAKE_UPSTREAM_VERSION 0.17.0)
+set(DRAKE_UPSTREAM_VERSION 0.18.0)
 set(DRAKE_LITE_CMAKE_REVISION 0)
 set(DRAKE_LITE_CMAKE_VERSION "${DRAKE_UPSTREAM_VERSION}.${DRAKE_LITE_CMAKE_REVISION}")
 if(NOT DEFINED DRAKE_UPSTREAM_TAG)
@@ -109,21 +109,6 @@ if(NOT ghcfilesystem_POPULATED)
   add_subdirectory(${ghcfilesystem_SOURCE_DIR} ${ghcfilesystem_BINARY_DIR})
 endif()
 
-# tinydir 
-FetchContent_Declare(
-  tinydir
-  GIT_REPOSITORY https://github.com/cxong/tinydir.git
-  GIT_TAG        1.2.4
-)
-FetchContent_GetProperties(tinydir)
-if(NOT tinydir_POPULATED)
-  FetchContent_Populate(tinydir)
-  add_library(tinydir::tinydir INTERFACE IMPORTED)
-  set_target_properties(tinydir::tinydir PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${tinydir_SOURCE_DIR}")
-endif()
-
-
 if(BUILD_TESTING)
   FetchContent_Declare(
     googletest
@@ -208,7 +193,7 @@ if(NOT drake_POPULATED)
   target_include_directories(drake-lite-cmake PUBLIC "$<BUILD_INTERFACE:${drake_CORRECTED_PARENT_SOURCE_DIR}>"
                                                      "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
   target_link_libraries(drake-lite-cmake PUBLIC Eigen3::Eigen fmt::fmt fcl
-                                         PRIVATE ghc_filesystem tinyobjloader_double tinydir::tinydir sdformat9::sdformat9 tinyxml2::tinyxml2 spdlog::spdlog)
+                                         PRIVATE ghc_filesystem tinyobjloader_double sdformat9::sdformat9 tinyxml2::tinyxml2 spdlog::spdlog)
   target_compile_features(drake-lite-cmake PUBLIC cxx_std_17)
   target_compile_definitions(drake-lite-cmake PRIVATE TINYOBJLOADER_USE_DOUBLE)
   target_compile_definitions(drake-lite-cmake PRIVATE HAVE_SPDLOG)

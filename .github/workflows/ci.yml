@@ -14,6 +14,7 @@ jobs:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}]'
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         build_type: [Release, Debug]
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -114,7 +115,7 @@ jobs:
         # spdlog
         git clone https://github.com/gabime/spdlog
         cd spdlog
-        git checkout 81444265f4618f9e3eafba863b806ce07fab12aa
+        git checkout v1.6.0
         mkdir -p build
         cd build
         cmake -A x64 -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
@@ -137,7 +138,7 @@ jobs:
         # spdlog
         git clone https://github.com/gabime/spdlog
         cd spdlog
-        git checkout v1.5.0
+        git checkout v1.6.0
         mkdir -p build
         cd build
         cmake -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
