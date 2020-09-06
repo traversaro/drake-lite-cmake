@@ -72,6 +72,8 @@ set(SOURCE_FILES
     systems/framework/vector_base.cc
     systems/framework/value_to_abstract_value.h
     systems/framework/value_checker.h
+    systems/framework/system_visitor.h
+    systems/framework/system_visitor.cc
     systems/framework/system_type_tag.h
     systems/framework/system_type_tag.cc
     systems/framework/system_symbolic_inspector.h
@@ -80,6 +82,8 @@ set(SOURCE_FILES
     systems/framework/system_scalar_converter.cc
     systems/framework/system_output.h
     systems/framework/system_output.cc
+    systems/framework/system_html.h
+    systems/framework/system_html.cc
     systems/framework/system_constraint.h
     systems/framework/system_constraint.cc
     systems/framework/system_base.h
@@ -125,6 +129,8 @@ set(SOURCE_FILES
     systems/framework/event.h
     systems/framework/discrete_values.h
     systems/framework/discrete_values.cc
+    systems/framework/diagram_state.h
+    systems/framework/diagram_state.cc
     systems/framework/diagram_output_port.h
     systems/framework/diagram_output_port.cc
     systems/framework/diagram_discrete_values.h
@@ -215,6 +221,10 @@ set(SOURCE_FILES
     multibody/tree/prismatic_joint.cc
     multibody/tree/position_kinematics_cache.h
     multibody/tree/position_kinematics_cache.cc
+    multibody/tree/planar_mobilizer.h
+    multibody/tree/planar_mobilizer.cc
+    multibody/tree/planar_joint.h
+    multibody/tree/planar_joint.cc
     multibody/tree/multibody_tree_topology.h
     multibody/tree/multibody_tree_system.h
     multibody/tree/multibody_tree_system.cc
@@ -279,6 +289,7 @@ set(SOURCE_FILES
     multibody/plant/hydroelastic_contact_info.cc
     multibody/plant/externally_applied_spatial_force.h
     multibody/plant/externally_applied_spatial_force.cc
+    multibody/plant/discrete_contact_pair.h
     multibody/plant/coulomb_friction.h
     multibody/plant/coulomb_friction.cc
     multibody/plant/contact_results.h
@@ -385,6 +396,8 @@ set(SOURCE_FILES
     geometry/render/render_label.cc
     geometry/render/render_engine.h
     geometry/render/render_engine.cc
+    geometry/render/render_camera.h
+    geometry/render/render_camera.cc
     geometry/render/camera_properties.h
     geometry/query_results/signed_distance_to_point_with_gradient.h
     geometry/query_results/signed_distance_to_point.h
@@ -452,8 +465,11 @@ set(SOURCE_FILES
     geometry/shape_specification.h
     geometry/shape_specification.cc
     geometry/scene_graph_inspector.h
+    geometry/scene_graph_inspector.cc
     geometry/scene_graph.h
     geometry/scene_graph.cc
+    geometry/rgba.h
+    geometry/rgba.cc
     geometry/query_object.h
     geometry/query_object.cc
     geometry/proximity_properties.h
@@ -509,6 +525,8 @@ set(SOURCE_FILES
     common/symbolic_simplification.cc
     common/symbolic_rational_function.h
     common/symbolic_rational_function.cc
+    common/symbolic_polynomial_basis_element.h
+    common/symbolic_polynomial_basis_element.cc
     common/symbolic_polynomial.h
     common/symbolic_polynomial.cc
     common/symbolic_monomial_util.h
@@ -533,6 +551,10 @@ set(SOURCE_FILES
     common/symbolic_decompose.cc
     common/symbolic_codegen.h
     common/symbolic_codegen.cc
+    common/symbolic_chebyshev_polynomial.h
+    common/symbolic_chebyshev_polynomial.cc
+    common/symbolic_chebyshev_basis_element.h
+    common/symbolic_chebyshev_basis_element.cc
     common/symbolic.h
     common/symbolic.cc
     common/sorted_vectors_have_intersection.h
