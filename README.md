@@ -2,7 +2,7 @@
 
 Reduced (lite) unofficial version of drake (https://drake.mit.edu/) that can be built with CMake.
 
-**Disclaimer:** drake-lite-cmake is an independent and unofficial project and is not related by any means to Toyota Research Instiute and MIT.
+**Disclaimer:** drake-lite-cmake is an independent and unofficial project and is not related by any means to Toyota Research Institute or MIT.
 
 
 # Overview
