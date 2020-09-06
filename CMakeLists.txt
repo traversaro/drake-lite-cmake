@@ -47,20 +47,10 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 include(FetchContent)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-find_package(Eigen3 3.3.4 CONFIG REQUIRED)
-find_package(fmt 6.0 CONFIG REQUIRED)
-find_package(spdlog 1.3 CONFIG REQUIRED)
-
-find_package(fcl REQUIRED)
-find_package(tinyxml2 REQUIRED)
-find_package(sdformat9 REQUIRED)
-
 # Options
 option(BUILD_SHARED_LIBS "If on, build shared libraries, otherwise build static libraries." ON)
 option(DRAKE_LITE_CMAKE_GENERATE_SOURCE_FILES "Enable this option to regenerate the source_files.cmake file (requires to have all the Drake dependencies installed)" OFF)
+option(DRAKE_LITE_CMAKE_USE_EXTERNAL_FCL "Enable this option to find a suitable fcl in the system with find_package, instead of using the internal one." OFF)
 # If the library is compiled as shared, ensure  that static libraries are compiled with -fPIC
 if(BUILD_SHARED_LIBS)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -82,6 +72,37 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY VALUE "Release")
   endif()
 endif()
+
+# Dependencies
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+find_package(Eigen3 3.3.4 CONFIG REQUIRED)
+find_package(fmt 6.0 CONFIG REQUIRED)
+find_package(spdlog 1.3 CONFIG REQUIRED)
+
+find_package(tinyxml2 REQUIRED)
+find_package(sdformat9 REQUIRED)
+
+if(DRAKE_LITE_CMAKE_USE_EXTERNAL_FCL)
+  find_package(fcl REQUIRED)
+else()
+  FetchContent_Declare(
+    fcl
+    GIT_REPOSITORY https://github.com/flexible-collision-library/fcl.git
+    GIT_TAG        0d98b836d57b1a4f457fac8e52d6b22b56e5fdbf
+  )
+  FetchContent_GetProperties(fcl)
+  if(NOT fcl_POPULATED)
+    FetchContent_Populate(fcl)
+    # Disable fcl tests even if drake-lite-cmake has BUILD_TESTING enabled
+    set(DLC_BUILD_TESTING_BACKUP ${BUILD_TESTING})
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${fcl_SOURCE_DIR} ${fcl_BINARY_DIR})
+    set(BUILD_TESTING ${DLC_BUILD_TESTING_BACKUP} CACHE BOOL "" FORCE)
+  endif()
+endif()
+
 
 # tinyobjloader
 FetchContent_Declare(

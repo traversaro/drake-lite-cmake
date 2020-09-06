@@ -33,28 +33,50 @@ For check if your Drake-based code can work with `drake-lite-cmake`, compare the
 the problem could be induced by the modifications done at the `drake-lite-cmake` level.**
 
 # Dependencies
-drake-lite-cmake depends on
+`drake-lite-cmake` depends on
  - [fmt](https://fmt.dev) - `version >= 6.0.0`
  - [spdlog](https://github.com/gabime/spdlog) - `version >= 1.3`
  - [Eigen3](http://eigen.tuxfamily.org) - `version >= 3.3.4`
  - [TinyXML2](https://github.com/leethomason/tinyxml2) - `version >= 6.0.0`
- - [Flexible Collision Library (fcl)](https://github.com/flexible-collision-library/fcl) - `version >= 0.6.0`
  - [SDFormat](http://sdformat.org/) - `version >= 9.0.0`
 
-Detailed documentation on how to install the dependencies on each platform is not available, but
-you can inspect under `.github/workflows/ci.yml` for the detailed instructions on how we install the dependencies in our testing infrastructure.
-Note that due to a bug of spdlog on Windows fixed by a recent PR (https://github.com/gabime/spdlog/pull/1453) on Windows the latest (unreleased) version
-of spdlog is actually required.
+Furthermore, drake-lite-cmake depends also on the [Flexible Collision Library (fcl)](https://github.com/flexible-collision-library/fcl). However, as fcl is a library developed by Drake developers, it is often updated with features used by Drake,
+so by default `drake-lite-cmake` downalods, builds and install a suitable version of `fcl` as part of the build process.
+If you are building in an enviroment in which a recent enough version of `fcl` is available, you can ensure that `fcl` is
+found via CMake's `find_package` as all other dependencies by setting the `DRAKE_LITE_CMAKE_USE_EXTERNAL_FCL` CMake option to `ON`.
 
 # Build and use the library
 Use the following commands to build, install and use the library, assuming that the required dependencies can be found by CMake.
 
 ## Linux/macOS 
-First of all, install all the required dependencies, and make sure that can be found by CMake. 
-For the dependencies installed by apt/homebrew this tipically happens automatically, while for manually installed 
-depedencies you need to add the installation prefix to the [`CMAKE_PREFIX_PATH` enviroment variable](https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html).
 
-Then you can compile and install `drake-lite-cmake` as:  
+### Dependencies
+First of all, install all the required dependencies, and make sure that can be found by CMake. 
+Most dependencies should be installable with your package manager, see the following sections 
+for detailed instructions for each specific system.
+
+#### Ubuntu 20.04
+On apt-based distributions such as Ubuntu 20.04, you can install most dependencies with the command:
+~~~
+sudo apt-get install libeigen3-dev libfmt-dev libspdlog-dev libtinyxml2-dev libccd-dev liboctomap-dev
+~~~
+However, the default apt repositories do not contain a new enough version of sdformat, so you need to enable
+Gazebo's apt repositories and install `sdformat` from there, following the [Gazebo instructions](http://gazebosim.org/tutorials?tut=install_ubuntu): 
+~~~
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get install libsdformat9-dev
+~~~
+
+
+#### macOs/Homebrew 
+If you use Homebrew, you can install the dependencies with the following command:
+~~~
+brew install fmt spdlog eigen tinyxml2 osrf/simulation/sdformat9 libccd octomap
+~~~
+
+### Compilation
+After you installed the dependencies you can compile and install `drake-lite-cmake` as:  
 ```bash
 $ git clone https://github.com/traversaro/drake-lite-cmake
 $ cd drake-lite-cmake
@@ -79,6 +101,10 @@ Furthermore, at least Visual Studio 16.5 is required.
 First of all, install all the required dependencies, and make sure that can be found by CMake. 
 For the dependencies installed by [vcpkg](https://github.com/microsoft/vcpkg) this tipically happens by passing vcpkg's `CMAKE_TOOLCHAIN_FILE`, 
 while for manually installed depedencies you need to add the installation prefix to the [`CMAKE_PREFIX_PATH` enviroment variable](https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html).
+If you use [vcpkg](https://github.com/microsoft/vcpkg), you can install all required dependencies as:
+~~~
+.\vcpkg.exe --triplet x64-windows install fmt spdlog tinyxml2 eigen3 ccd octomap sdformat9
+~~~
 
 ### Compilation
 To compile the project from the command line, follow this instructions:

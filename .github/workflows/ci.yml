@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [Release, Debug]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-20.04, macos-latest, windows-latest]
         exclude:
         # excludes windows-latest Debug build
         # workaround for https://github.com/traversaro/drake-lite-cmake/issues/7
@@ -35,7 +35,7 @@ jobs:
     # Remove apt repos that are known to break from time to time
     # See https://github.com/actions/virtual-environments/issues/323
     - name: Remove broken apt repos [Ubuntu]
-      if: matrix.os == 'ubuntu-latest'
+      if:  contains(matrix.os, 'ubuntu')
       run: |
         for apt_file in `grep -lr microsoft /etc/apt/sources.list.d/`; do sudo rm $apt_file; done
 
@@ -52,113 +52,25 @@ jobs:
     # ============
 
     - name: Dependencies [Windows]
-      if: matrix.os == 'windows-latest'
+      if: contains(matrix.os, 'windows')
       run: |
-        vcpkg.exe --triplet x64-windows install fmt eigen3 tinyxml2
-        # Dependencies to compile fcl from sources
-        vcpkg.exe --triplet x64-windows install ccd octomap
-        # Dependencies to compile sdformat9 from sources
-        vcpkg.exe --triplet x64-windows install tinyxml urdfdom
+        vcpkg.exe --triplet x64-windows install fmt spdlog tinyxml2 eigen3 ccd octomap sdformat9
 
     - name: Dependencies [macOS]
-      if: matrix.os == 'macOS-latest'
+      if: contains(matrix.os, 'macos')
       run: |
-        brew install fmt spdlog eigen tinyxml2 osrf/simulation/sdformat9
-        # Dependencies to compile fcl from sources
-        brew install libccd octomap
+        brew install fmt spdlog eigen tinyxml2 osrf/simulation/sdformat9 libccd octomap
 
     - name: Dependencies [Ubuntu]
-      if: matrix.os == 'ubuntu-latest'
+      if: contains(matrix.os, 'ubuntu') 
       run: |
         sudo apt-get update
-        sudo apt-get install git build-essential cmake libeigen3-dev libtinyxml2-dev
-        # Dependencies to compile fcl from sources
-        sudo apt-get install libccd-dev liboctomap-dev
+        sudo apt-get install git build-essential cmake  libeigen3-dev libfmt-dev libspdlog-dev libtinyxml2-dev libccd-dev liboctomap-dev
         # sdformat
         sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-latest.list'
         wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
         sudo apt-get update
         sudo apt-get install libsdformat9-dev
-
-
-    - name: Source-based Dependencies [Windows]
-      if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        # fcl
-        git clone https://github.com/flexible-collision-library/fcl
-        cd fcl
-        mkdir -p build
-        cd build
-        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        cd ../..
-        # ignition-cmake2
-        git clone https://github.com/ignitionrobotics/ign-cmake
-        cd ign-cmake
-        git checkout ign-cmake2
-        mkdir -p build
-        cd build
-        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        cd ../..
-        # ignition-math6
-        git clone https://github.com/ignitionrobotics/ign-math
-        cd ign-math
-        git checkout ign-math6
-        mkdir -p build
-        cd build
-        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        cd ../..
-        # sdformat9
-        git clone https://github.com/osrf/sdformat
-        cd sdformat
-        git checkout sdf9
-        mkdir -p build
-        cd build
-        cmake -A x64  -DBUILD_TESTING:BOOL=OFF -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        cd ../..
-        # spdlog
-        git clone https://github.com/gabime/spdlog
-        cd spdlog
-        git checkout v1.7.0
-        mkdir -p build
-        cd build
-        cmake -A x64 -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL
-        cd ../..
-
-    - name: Source-based Dependencies [Ubuntu/macOS]
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      shell: bash
-      run: |
-        # fmt
-        git clone https://github.com/fmtlib/fmt
-        cd fmt
-        git checkout 6.1.2
-        mkdir -p build
-        cd build
-        cmake -DBUILD_SHARED_LIBS:BOOL=ON -DFMT_TEST:BOOL=OFF -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target install
-        cd ../..
-        # spdlog
-        git clone https://github.com/gabime/spdlog
-        cd spdlog
-        git checkout v1.6.0
-        mkdir -p build
-        cd build
-        cmake -DSPDLOG_BUILD_SHARED:BOOL=ON -DSPDLOG_BUILD_EXAMPLE:BOOL=OFF -DSPDLOG_FMT_EXTERNAL:BOOL=ON -DCMAKE_PREFIX_PATH=${GITHUB_WORKSPACE}/install -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target install
-        cd ../..
-        # fcl
-        git clone https://github.com/flexible-collision-library/fcl
-        cd fcl
-        mkdir -p build
-        cd build
-        cmake -DBUILD_TESTING:BOOL=OFF -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target install
 
     # ===================
     # CMAKE-BASED PROJECT
@@ -175,7 +87,7 @@ jobs:
                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
 
     - name: Configure [Ubuntu/macOS]
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
       shell: bash
       run: |
         mkdir -p build
@@ -189,14 +101,14 @@ jobs:
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Test [Ubuntu/macOS] 
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
       shell: bash
       run: |
         cd build
         ctest --output-on-failure -C ${{ matrix.build_type }} .
 
     - name: Test [Windows]
-      if: matrix.os == 'windows-latest'
+      if: contains(matrix.os, 'windows') 
       shell: bash
       run: |
         cd build
@@ -205,21 +117,21 @@ jobs:
         ctest --output-on-failure -C ${{ matrix.build_type }} .
 
     - name: Install [Windows]
-      if: matrix.os == 'windows-latest'
+      if: contains(matrix.os, 'windows') 
       shell: bash
       run: |
         cd build
         cmake --build . --config ${{ matrix.build_type }} --target INSTALL
 
     - name: Install [Ubuntu/macOS]
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
       shell: bash
       run: |
         cd build
         cmake --build . --config ${{ matrix.build_type }} --target install
 
     - name: Compile Examples [Windows]
-      if: matrix.os == 'windows-latest'
+      if: contains(matrix.os, 'windows')
       shell: bash
       run: |
         cd examples
@@ -230,7 +142,7 @@ jobs:
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Compile Examples [Ubuntu/macOS]
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
       shell: bash
       run: |
         cd examples
