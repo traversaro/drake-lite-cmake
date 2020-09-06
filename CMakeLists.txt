@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.12)
 # version of the used drake version, plus an additional version number
 # that indicates drake-lite-cmake revision, i.e. drake-lite-cmake x.y.z.w is the w-release
 # of drake-lite-cmake based on drake x.y.z
-set(DRAKE_UPSTREAM_VERSION 0.18.0)
+set(DRAKE_UPSTREAM_VERSION 0.22.0)
 set(DRAKE_LITE_CMAKE_REVISION 0)
 set(DRAKE_LITE_CMAKE_VERSION "${DRAKE_UPSTREAM_VERSION}.${DRAKE_LITE_CMAKE_REVISION}")
 if(NOT DEFINED DRAKE_UPSTREAM_TAG)
